@@ -68,7 +68,7 @@
               </router-link>
               <router-link to="/orders" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
                 @click="showUserMenu = false">
-                我的订单
+                我的挂号
               </router-link>
               <hr class="my-1" />
               <button @click="logout" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
@@ -124,7 +124,7 @@ const notifications = ref([])
 const navigation = [
   { name: '首页', href: '/home' },
   { name: '预约挂号', href: '/departments' },
-  { name: '我的订单', href: '/orders' },
+  { name: '我的挂号', href: '/orders' },
   { name: '个人中心', href: '/profile' }
 ]
 

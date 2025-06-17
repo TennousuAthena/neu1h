@@ -1,12 +1,12 @@
 <template>
   <div class="min-h-screen bg-gray-50">
     <Header />
-    
+
     <main class="pt-16">
       <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <!-- Page Header -->
         <div class="mb-8">
-          <h1 class="text-3xl font-bold text-gray-900 mb-2">我的订单</h1>
+          <h1 class="text-3xl font-bold text-gray-900 mb-2">我的挂号</h1>
           <p class="text-gray-600">管理您的预约记录和费用信息</p>
         </div>
 
@@ -14,17 +14,12 @@
         <div class="mb-6">
           <div class="border-b border-gray-200">
             <nav class="-mb-px flex space-x-8">
-              <button
-                v-for="tab in tabs"
-                :key="tab.key"
-                @click="activeTab = tab.key"
-                :class="[
-                  'py-2 px-1 border-b-2 font-medium text-sm',
-                  activeTab === tab.key
-                    ? 'border-blue-500 text-blue-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
-                ]"
-              >
+              <button v-for="tab in tabs" :key="tab.key" @click="activeTab = tab.key" :class="[
+                'py-2 px-1 border-b-2 font-medium text-sm',
+                activeTab === tab.key
+                  ? 'border-blue-500 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+              ]">
                 {{ tab.label }}
                 <span v-if="tab.count > 0" class="ml-2 bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs">
                   {{ tab.count }}
@@ -38,19 +33,19 @@
         <div class="mb-6 flex flex-col sm:flex-row gap-4">
           <div class="flex-1">
             <div class="relative">
-              <input
-                v-model="searchQuery"
-                type="text"
+              <input v-model="searchQuery" type="text"
                 class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="搜索医生姓名或科室..."
-              />
-              <svg class="absolute left-3 top-2.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                placeholder="搜索医生姓名或科室..." />
+              <svg class="absolute left-3 top-2.5 h-5 w-5 text-gray-400" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="m21 21-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
               </svg>
             </div>
           </div>
-          
-          <select v-model="sortOrder" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+
+          <select v-model="sortOrder"
+            class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
             <option value="newest">最新预约</option>
             <option value="oldest">最早预约</option>
             <option value="date-asc">就诊时间升序</option>
@@ -62,60 +57,43 @@
         <div class="space-y-4">
           <div v-if="filteredAppointments.length === 0" class="text-center py-12">
             <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2">
+              </path>
             </svg>
             <h3 class="mt-2 text-sm font-medium text-gray-900">暂无订单记录</h3>
             <p class="mt-1 text-sm text-gray-500">您还没有任何预约记录</p>
             <div class="mt-6">
-              <button
-                @click="$router.push('/departments')"
-                class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-              >
+              <button @click="$router.push('/departments')"
+                class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
                 立即预约
               </button>
             </div>
           </div>
 
-          <OrderCard
-            v-for="appointment in filteredAppointments"
-            :key="appointment.id"
-            :appointment="appointment"
-            @cancel="cancelAppointment"
-            @pay="payAppointment"
-            @reschedule="rescheduleAppointment"
-          />
+          <OrderCard v-for="appointment in filteredAppointments" :key="appointment.id" :appointment="appointment"
+            @cancel="cancelAppointment" @pay="payAppointment" @reschedule="rescheduleAppointment" />
         </div>
 
         <!-- Pagination -->
         <div v-if="totalPages > 1" class="mt-8 flex justify-center">
           <nav class="flex items-center space-x-2">
-            <button
-              @click="currentPage = Math.max(1, currentPage - 1)"
-              :disabled="currentPage === 1"
-              class="px-3 py-2 border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-            >
+            <button @click="currentPage = Math.max(1, currentPage - 1)" :disabled="currentPage === 1"
+              class="px-3 py-2 border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50">
               上一页
             </button>
-            
-            <button
-              v-for="page in visiblePages"
-              :key="page"
-              @click="currentPage = page"
-              :class="[
-                'px-3 py-2 border rounded-md',
-                currentPage === page
-                  ? 'bg-blue-600 text-white border-blue-600'
-                  : 'border-gray-300 hover:bg-gray-50'
-              ]"
-            >
+
+            <button v-for="page in visiblePages" :key="page" @click="currentPage = page" :class="[
+              'px-3 py-2 border rounded-md',
+              currentPage === page
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'border-gray-300 hover:bg-gray-50'
+            ]">
               {{ page }}
             </button>
-            
-            <button
-              @click="currentPage = Math.min(totalPages, currentPage + 1)"
-              :disabled="currentPage === totalPages"
-              class="px-3 py-2 border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50"
-            >
+
+            <button @click="currentPage = Math.min(totalPages, currentPage + 1)" :disabled="currentPage === totalPages"
+              class="px-3 py-2 border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50">
               下一页
             </button>
           </nav>
@@ -124,13 +102,8 @@
     </main>
 
     <!-- 改期弹窗 -->
-    <RescheduleModal
-      v-if="currentRescheduleAppointment"
-      :is-open="showRescheduleModal"
-      :appointment="currentRescheduleAppointment"
-      @close="closeRescheduleModal"
-      @confirm="confirmReschedule"
-    />
+    <RescheduleModal v-if="currentRescheduleAppointment" :is-open="showRescheduleModal"
+      :appointment="currentRescheduleAppointment" @close="closeRescheduleModal" @confirm="confirmReschedule" />
   </div>
 </template>
 
@@ -227,8 +200,8 @@ const totalPages = computed(() => {
     if (searchQuery.value) {
       const query = searchQuery.value.toLowerCase()
       return apt.doctorName.toLowerCase().includes(query) ||
-             apt.department.toLowerCase().includes(query) ||
-             apt.patientInfo.name.toLowerCase().includes(query)
+        apt.department.toLowerCase().includes(query) ||
+        apt.patientInfo.name.toLowerCase().includes(query)
     }
     return true
   }).length
@@ -239,7 +212,7 @@ const visiblePages = computed(() => {
   const pages = []
   const start = Math.max(1, currentPage.value - 2)
   const end = Math.min(totalPages.value, start + 4)
-  
+
   for (let i = start; i <= end; i++) {
     pages.push(i)
   }

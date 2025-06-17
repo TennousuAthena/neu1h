@@ -136,7 +136,7 @@ export const doctors = [
   // Internal Medicine Doctors
   {
     id: 1,
-    name: "张建华",
+    name: "孙忠华",
     departmentId: 1,
     department: "内科",
     level: "主任医师",
@@ -410,7 +410,7 @@ export const sampleAppointments = [
   {
     id: 1001,
     doctorId: 1,
-    doctorName: "张建华",
+    doctorName: "孙忠华",
     department: "内科",
     date: "2024-12-30",
     timeSlot: "09:00-09:30",

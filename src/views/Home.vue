@@ -8,10 +8,11 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
           <div class="text-center">
             <h1 class="text-3xl md:text-4xl font-bold mb-4">
-              欢迎来到东北大学附属第一医院
+              东北大学附属第一医院 智慧挂号缴费系统
             </h1>
             <p class="text-xl opacity-90 mb-8">
-              便捷挂号，智慧医疗，为您的健康保驾护航
+              ── 厚德精术，仁心笃行;
+              自强不息，知行合一
             </p>
             <button @click="$router.push('/departments')"
               class="bg-white text-blue-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-50 transform hover:scale-105 transition-all">
@@ -124,7 +125,7 @@ const quickActions = ref([
     icon: 'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z'
   },
   {
-    title: '我的订单',
+    title: '我的挂号',
     desc: '查看预约记录',
     path: '/orders',
     icon: 'M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2'

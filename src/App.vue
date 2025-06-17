@@ -1,18 +1,16 @@
 <template>
-  <div id="app" class="min-h-screen bg-gray-50">
-    <router-view />
-    
+  <div id="app" class="min-h-screen bg-gray-50 flex flex-col">
+    <div class="flex-1">
+      <router-view />
+    </div>
+
+    <!-- 底栏 -->
+    <Footer />
+
     <!-- 通知系统 -->
     <div class="fixed top-4 right-4 z-50 space-y-2">
-      <Toast
-        v-for="toast in toasts.toasts.value"
-        :key="toast.id"
-        :type="toast.type"
-        :title="toast.title"
-        :message="toast.message"
-        :show="toast.show"
-        @close="toasts.removeToast(toast.id)"
-      />
+      <Toast v-for="toast in toasts.toasts.value" :key="toast.id" :type="toast.type" :title="toast.title"
+        :message="toast.message" :show="toast.show" @close="toasts.removeToast(toast.id)" />
     </div>
   </div>
 </template>
@@ -23,6 +21,7 @@ import { useAuth } from './composables/useAuth'
 import { useAppointment } from './composables/useAppointment'
 import { useToast } from './composables/useToast'
 import Toast from './components/Toast.vue'
+import Footer from './components/Footer.vue'
 
 const auth = useAuth()
 const appointment = useAppointment()

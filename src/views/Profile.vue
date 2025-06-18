@@ -21,7 +21,7 @@
         </div>
 
         <!-- Quick Stats -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+        <div class="grid grid-cols-2 md:grid-cols-3 gap-3 mb-8">
           <div class="bg-white rounded-lg shadow-sm p-4 text-center">
             <div class="text-2xl font-bold text-blue-600">{{ stats.totalAppointments }}</div>
             <div class="text-sm text-gray-600">总预约次数</div>
@@ -34,10 +34,10 @@
             <div class="text-2xl font-bold text-orange-600">{{ stats.pendingAppointments }}</div>
             <div class="text-sm text-gray-600">待就诊</div>
           </div>
-          <div class="bg-white rounded-lg shadow-sm p-4 text-center">
+          <!-- <div class="bg-white rounded-lg shadow-sm p-4 text-center">
             <div class="text-2xl font-bold text-red-600">¥{{ stats.totalSpent }}</div>
             <div class="text-sm text-gray-600">累计消费</div>
-          </div>
+          </div> -->
         </div>
 
         <!-- Profile Sections -->

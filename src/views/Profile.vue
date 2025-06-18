@@ -169,27 +169,36 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, inject } from 'vue'
+import { ref, computed, onMounted, inject, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import Header from '../components/Header.vue'
 
 const router = useRouter()
 const auth = inject('auth')
 const appointment = inject('appointment')
+const toast = inject('toast')
 
 const editMode = ref(false)
 const showChangePassword = ref(false)
 
-const user = ref({
-  name: '关羽开',
-  phone: '13800138000',
-  idCard: '210123199001011234',
-  gender: 'male',
-  registeredAt: '2024-01-01',
+// 使用真实的用户数据
+const user = computed(() => auth.user.value || {
+  name: '',
+  phone: '',
+  idCard: '',
+  gender: '',
+  registeredAt: '',
   avatar: '/assets/images/guan.png'
 })
 
-const editableUser = ref({ ...user.value })
+const editableUser = ref({})
+
+// 监听用户数据变化，更新可编辑表单
+watch(() => auth.user.value, (newUser) => {
+  if (newUser) {
+    editableUser.value = { ...newUser }
+  }
+}, { immediate: true })
 
 const settings = ref({
   notifications: true
@@ -223,36 +232,52 @@ const handleImageError = (event) => {
   event.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAiIGhlaWdodD0iODAiIHZpZXdCb3g9IjAgMCA4MCA4MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iNDAiIGN5PSI0MCIgcj0iNDAiIGZpbGw9IiNFNUU3RUIiLz4KPHN2ZyB4PSIyMCIgeT0iMjAiIHdpZHRoPSI0MCIgaGVpZ2h0PSI0MCIgZmlsbD0iIzZCNzI4MCIgdmlld0JveD0iMCAwIDI0IDI0Ij4KPHN2ZyBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgdmlld0JveD0iMCAwIDI0IDI0Ij4KPHN2ZyBmaWxsPSJub25lIiBzdHJva2U9ImN1cnJlbnRDb2xvciIgdmlld0JveD0iMCAwIDI0IDI0Ij4KPHA+CjxwYXRoIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgc3Ryb2tlLWxpbmVqb2luPSJyb3VuZCIgc3Ryb2tlLXdpZHRoPSIyIiBkPSJNMTYgN2E0IDQgMCAxMS04IDAgNCA0IDAgMDE4IDB6TTEyIDE0YTcgNyAwIDAwLTcgN2gxNGE3IDcgMCAwMC03LTd6Ii8+Cgo8L3N2Zz4KPC9zdmc+Cg=='
 }
 
-const saveProfile = () => {
-  user.value = { ...editableUser.value }
-  editMode.value = false
-  alert('个人信息已保存')
+const saveProfile = async () => {
+  try {
+    await auth.updateProfile(editableUser.value)
+    editMode.value = false
+    toast.success('保存成功', '个人信息已更新')
+  } catch (error) {
+    toast.error('保存失败', error.message)
+  }
 }
 
 const cancelEdit = () => {
-  editableUser.value = { ...user.value }
+  if (auth.user.value) {
+    editableUser.value = { ...auth.user.value }
+  }
   editMode.value = false
 }
 
-const changePassword = () => {
+const changePassword = async () => {
   if (passwordForm.value.newPassword !== passwordForm.value.confirmPassword) {
-    alert('新密码不一致')
+    toast.error('密码确认失败', '两次输入的新密码不一致')
     return
   }
 
-  // Simulate password change
-  alert('密码修改成功')
-  showChangePassword.value = false
-  passwordForm.value = {
-    currentPassword: '',
-    newPassword: '',
-    confirmPassword: ''
+  if (passwordForm.value.newPassword.length < 6) {
+    toast.error('密码格式错误', '新密码长度不能少于6位')
+    return
+  }
+
+  try {
+    await auth.changePassword(passwordForm.value.currentPassword, passwordForm.value.newPassword)
+    toast.success('密码修改成功', '请使用新密码登录')
+    showChangePassword.value = false
+    passwordForm.value = {
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: ''
+    }
+  } catch (error) {
+    toast.error('密码修改失败', error.message)
   }
 }
 
 const logout = () => {
   if (confirm('确定要退出登录吗？')) {
     auth.logout()
+    toast.success('退出成功', '您已安全退出登录')
     router.push('/login')
   }
 }

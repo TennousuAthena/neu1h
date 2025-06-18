@@ -20,7 +20,7 @@
 
         <!-- Navigation -->
         <nav class="hidden md:flex space-x-8">
-          <router-link v-for="item in navigation" :key="item.name" :to="item.href" :class="[
+          <router-link v-for="item in filteredNavigation" :key="item.name" :to="item.href" :class="[
             'px-3 py-2 rounded-md text-sm font-medium transition-colors',
             $route.path === item.href
               ? 'bg-blue-100 text-blue-700'
@@ -32,27 +32,28 @@
 
         <!-- User Menu -->
         <div class="flex items-center space-x-4">
-          <!-- Notifications -->
-          <button class="relative p-2 text-gray-400 hover:text-gray-600">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-5 5-5-5h5zm0 0V3">
-              </path>
-            </svg>
-            <span v-if="notifications.length > 0"
-              class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 text-white text-xs rounded-full flex items-center justify-center">
-              {{ notifications.length }}
-            </span>
-          </button>
+          <!-- 未登录状态 - 显示登录按钮 -->
+          <div v-if="!auth.isAuthenticated.value">
+            <router-link to="/login"
+              class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-sm font-medium">
+              登录
+            </router-link>
+          </div>
 
-          <!-- User Profile Dropdown -->
-          <div class="relative" ref="userMenuRef">
+          <!-- 已登录状态 - 显示用户菜单 -->
+          <div v-else class="relative" ref="userMenuRef">
             <button @click="showUserMenu = !showUserMenu"
               class="flex items-center space-x-2 p-2 rounded-md hover:bg-gray-50">
-              <div class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
-                <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                </svg>
+              <!-- 用户头像 -->
+              <div class="w-8 h-8 rounded-full overflow-hidden">
+                <img v-if="user?.avatar && !avatarError" :src="user.avatar" :alt="user.name"
+                  class="w-full h-full object-cover" @error="handleAvatarError" />
+                <div v-else class="w-full h-full bg-blue-100 rounded-full flex items-center justify-center">
+                  <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                  </svg>
+                </div>
               </div>
               <span class="hidden sm:block text-sm font-medium text-gray-700">{{ user?.name || '用户' }}</span>
               <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -90,13 +91,20 @@
       <!-- Mobile Navigation -->
       <div v-if="showMobileMenu" class="md:hidden">
         <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t border-gray-200">
-          <router-link v-for="item in navigation" :key="item.name" :to="item.href" :class="[
+          <router-link v-for="item in filteredNavigation" :key="item.name" :to="item.href" :class="[
             'block px-3 py-2 rounded-md text-base font-medium',
             $route.path === item.href
               ? 'bg-blue-100 text-blue-700'
               : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50'
           ]" @click="showMobileMenu = false">
             {{ item.name }}
+          </router-link>
+
+          <!-- 移动端登录按钮 -->
+          <router-link v-if="!auth.isAuthenticated.value" to="/login"
+            class="block px-3 py-2 rounded-md text-base font-medium bg-blue-600 text-white hover:bg-blue-700"
+            @click="showMobileMenu = false">
+            登录
           </router-link>
         </div>
       </div>
@@ -105,36 +113,59 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, inject } from 'vue'
+import { ref, onMounted, onUnmounted, inject, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 const auth = inject('auth')
+const toast = inject('toast')
 
 const showUserMenu = ref(false)
 const showMobileMenu = ref(false)
 const userMenuRef = ref(null)
 
-const user = ref({
-  name: '关羽开'
-})
+// 使用真实的用户数据
+const user = computed(() => auth.user.value)
 
 const notifications = ref([])
 
 const navigation = [
-  { name: '首页', href: '/home' },
-  { name: '预约挂号', href: '/departments' },
-  { name: '我的挂号', href: '/orders' },
-  { name: '个人中心', href: '/profile' }
+  { name: '首页', href: '/home', requireAuth: false },
+  { name: '预约挂号', href: '/departments', requireAuth: true },
+  { name: '我的挂号', href: '/orders', requireAuth: true },
+  { name: '个人中心', href: '/profile', requireAuth: true }
 ]
+
+// 根据登录状态过滤导航菜单
+const filteredNavigation = computed(() => {
+  if (auth.isAuthenticated.value) {
+    return navigation
+  } else {
+    return navigation.filter(item => !item.requireAuth)
+  }
+})
 
 const logout = () => {
   if (confirm('确定要退出登录吗？')) {
     auth.logout()
+    toast.success('退出成功', '您已安全退出登录')
     router.push('/login')
   }
   showUserMenu.value = false
 }
+
+// 处理头像加载失败
+const avatarError = ref(false)
+const handleAvatarError = (event) => {
+  // 头像加载失败时的处理
+  avatarError.value = true
+  event.target.style.display = 'none'
+}
+
+// 当用户变化时重置头像错误状态
+watch(() => user.value?.avatar, () => {
+  avatarError.value = false
+})
 
 // Close dropdown when clicking outside
 const handleClickOutside = (event) => {
